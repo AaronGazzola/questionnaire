@@ -76,9 +76,9 @@ const questions = [
 ];
 
 const users = [
-  { id: "1e3f5a79-b6e2-4f11-b69a-f0ad74e1d8fa" },
-  { id: "2a7e9d79-c8e4-4d62-8c69-d6c5d5c5a4b2" },
-  { id: "3c8e1d6b-d5f6-4f29-9b7d-f8a7e9d1e5f6" },
+  { id: "1e3f5a79-b6e2-4f11-b69a-f0ad74e1d8fa", name: "John" },
+  { id: "2a7e9d79-c8e4-4d62-8c69-d6c5d5c5a4b2", name: "Jane" },
+  { id: "3c8e1d6b-d5f6-4f29-9b7d-f8a7e9d1e5f6", name: "Bill" },
 ];
 
 const answers = [

@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("POSTGRES_PRISMA_URL") 
+  directUrl = env("POSTGRES_URL_NON_POOLING") 
+}
+
+model Question {
+  id      String   @id @default(uuid())
+  text    String
+  type    String
+  options Json?
+  Answer  Answer[]
+}
+
+model User {
+  id     String   @id @default(uuid())
+  name   String
+  Answer Answer[]
+}
+
+model Answer {
+  id         String   @id @default(uuid())
+  questionId String
+  userId     String
+  answer     Json
+
+  Question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  User       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([questionId])
+  @@index([userId])
+}

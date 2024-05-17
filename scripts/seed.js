@@ -4,13 +4,10 @@ const { questions, answers, users } = require("../app/lib/placeholder-data.js");
 async function seedQuestions(client) {
   try {
     await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
+    await client.sql`DROP TABLE IF EXISTS "Question" CASCADE`;
 
-    // Drop the "questions" table if it exists
-    await client.sql`DROP TABLE IF EXISTS questions CASCADE`;
-
-    // Create the "questions" table
-    const createTable = await client.sql`
-      CREATE TABLE questions (
+    await client.sql`
+      CREATE TABLE "Question" (
         id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
         text TEXT NOT NULL,
         type VARCHAR(50) NOT NULL,
@@ -18,25 +15,15 @@ async function seedQuestions(client) {
       );
     `;
 
-    console.log(`Created "questions" table`);
-
-    // Insert data into the "questions" table
-    const insertedQuestions = await Promise.all(
+    await Promise.all(
       questions.map(
-        (question) => client.sql`
-        INSERT INTO questions (id, text, type, options)
-        VALUES (${question.id}, ${question.text}, ${question.type}, ${question.options}::jsonb)
-        RETURNING *;
-      `
+        (question) =>
+          client.sql`
+          INSERT INTO "Question" (id, text, type, options)
+          VALUES (${question.id}, ${question.text}, ${question.type}, ${question.options}::jsonb)
+        `
       )
     );
-
-    console.log(`Seeded ${insertedQuestions.length} questions`);
-
-    return {
-      createTable,
-      questions: insertedQuestions,
-    };
   } catch (error) {
     console.error("Error seeding questions:", error);
     throw error;
@@ -45,35 +32,24 @@ async function seedQuestions(client) {
 
 async function seedUsers(client) {
   try {
-    // Drop the "users" table if it exists
-    await client.sql`DROP TABLE IF EXISTS users CASCADE`;
+    await client.sql`DROP TABLE IF EXISTS "User" CASCADE`;
 
-    // Create the "users" table
-    const createTable = await client.sql`
-      CREATE TABLE users (
-        id UUID DEFAULT uuid_generate_v4() PRIMARY KEY
+    await client.sql`
+      CREATE TABLE "User" (
+        id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+        name TEXT NOT NULL
       );
     `;
 
-    console.log(`Created "users" table`);
-
-    // Insert data into the "users" table
-    const insertedUsers = await Promise.all(
+    await Promise.all(
       users.map(
-        (user) => client.sql`
-        INSERT INTO users (id)
-        VALUES (${user.id})
-        RETURNING *;
-      `
+        (user) =>
+          client.sql`
+          INSERT INTO "User" (id, name)
+          VALUES (${user.id}, ${user.name})
+        `
       )
     );
-
-    console.log(`Seeded ${insertedUsers.length} users`);
-
-    return {
-      createTable,
-      users: insertedUsers,
-    };
   } catch (error) {
     console.error("Error seeding users:", error);
     throw error;
@@ -82,38 +58,26 @@ async function seedUsers(client) {
 
 async function seedAnswers(client) {
   try {
-    // Drop the "answers" table if it exists
-    await client.sql`DROP TABLE IF EXISTS answers CASCADE`;
+    await client.sql`DROP TABLE IF EXISTS "Answer" CASCADE`;
 
-    // Create the "answers" table
-    const createTable = await client.sql`
-      CREATE TABLE answers (
+    await client.sql`
+      CREATE TABLE "Answer" (
         id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-        question_id UUID NOT NULL REFERENCES questions(id),
-        user_id UUID NOT NULL REFERENCES users(id),
+        question_id UUID NOT NULL REFERENCES "Question"(id),
+        user_id UUID NOT NULL REFERENCES "User"(id),
         answer JSONB NOT NULL
       );
     `;
 
-    console.log(`Created "answers" table`);
-
-    // Insert data into the "answers" table
-    const insertedAnswers = await Promise.all(
+    await Promise.all(
       answers.map(
-        (answer) => client.sql`
-        INSERT INTO answers (id, question_id, user_id, answer)
-        VALUES (uuid_generate_v4(), ${answer.question_id}, ${answer.user_id}, ${answer.answer}::jsonb)
-        RETURNING *;
-      `
+        (answer) =>
+          client.sql`
+          INSERT INTO "Answer" (id, question_id, user_id, answer)
+          VALUES (uuid_generate_v4(), ${answer.question_id}, ${answer.user_id}, ${answer.answer}::jsonb)
+        `
       )
     );
-
-    console.log(`Seeded ${insertedAnswers.length} answers`);
-
-    return {
-      createTable,
-      answers: insertedAnswers,
-    };
   } catch (error) {
     console.error("Error seeding answers:", error);
     throw error;
@@ -123,11 +87,21 @@ async function seedAnswers(client) {
 async function main() {
   const client = await db.connect();
 
-  await seedQuestions(client);
-  await seedUsers(client);
-  await seedAnswers(client);
-
-  await client.end();
+  try {
+    await client.sql`BEGIN`;
+    await seedQuestions(client);
+    await seedUsers(client);
+    await seedAnswers(client);
+    await client.sql`COMMIT`;
+  } catch (err) {
+    console.error(
+      "An error occurred while attempting to seed the database:",
+      err
+    );
+    await client.sql`ROLLBACK`;
+  } finally {
+    await client.end();
+  }
 }
 
 main().catch((err) => {
