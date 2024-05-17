@@ -12,7 +12,7 @@ model Question {
   id      String   @id @default(uuid())
   text    String
   type    String
-  options Json?
+  options String[]
   Answer  Answer[]
 }
 
@@ -26,7 +26,7 @@ model Answer {
   id         String   @id @default(uuid())
   questionId String
   userId     String
-  answer     Json
+  answer     String
 
   Question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
   User       User     @relation(fields: [userId], references: [id], onDelete: Cascade)

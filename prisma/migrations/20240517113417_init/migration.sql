@@ -3,7 +3,7 @@ CREATE TABLE "Question" (
     "id" TEXT NOT NULL,
     "text" TEXT NOT NULL,
     "type" TEXT NOT NULL,
-    "options" JSONB,
+    "options" TEXT[],
 
     CONSTRAINT "Question_pkey" PRIMARY KEY ("id")
 );
@@ -21,7 +21,7 @@ CREATE TABLE "Answer" (
     "id" TEXT NOT NULL,
     "questionId" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
-    "answer" JSONB NOT NULL,
+    "answer" TEXT NOT NULL,
 
     CONSTRAINT "Answer_pkey" PRIMARY KEY ("id")
 );

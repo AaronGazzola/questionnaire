@@ -1,5 +1,5 @@
 const { db } = require("@vercel/postgres");
-const { questions, answers, users } = require("../app/lib/placeholder-data.js");
+const { questions, answers, users } = require("../app/lib/seed-data.js");
 
 async function seedQuestions(client) {
   try {
@@ -11,7 +11,7 @@ async function seedQuestions(client) {
         id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
         text TEXT NOT NULL,
         type VARCHAR(50) NOT NULL,
-        options JSONB
+        options TEXT[] NOT NULL
       );
     `;
 
@@ -20,7 +20,7 @@ async function seedQuestions(client) {
         (question) =>
           client.sql`
           INSERT INTO "Question" (id, text, type, options)
-          VALUES (${question.id}, ${question.text}, ${question.type}, ${question.options}::jsonb)
+          VALUES (${question.id}, ${question.text}, ${question.type}, ${question.options})
         `
       )
     );
@@ -65,7 +65,7 @@ async function seedAnswers(client) {
         id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
         question_id UUID NOT NULL REFERENCES "Question"(id),
         user_id UUID NOT NULL REFERENCES "User"(id),
-        answer JSONB NOT NULL
+        answer TEXT NOT NULL
       );
     `;
 
@@ -74,7 +74,7 @@ async function seedAnswers(client) {
         (answer) =>
           client.sql`
           INSERT INTO "Answer" (id, question_id, user_id, answer)
-          VALUES (uuid_generate_v4(), ${answer.question_id}, ${answer.user_id}, ${answer.answer}::jsonb)
+          VALUES (uuid_generate_v4(), ${answer.question_id}, ${answer.user_id}, ${answer.answer})
         `
       )
     );
