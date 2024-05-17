@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { AntdRegistry } from "@ant-design/nextjs-registry";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Questionnaire demo",
   description:
-    "A questionnaire built with Next.js, Postgress, Prisma and d3.js",
+    "A questionnaire built with Next.js, Ant design, Postgress, Prisma and d3.js",
 };
 
 export default function RootLayout({
@@ -18,9 +17,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <AntdRegistry>{children}</AntdRegistry>
-      </body>
+      <body className={inter.className}>{children}</body>
     </html>
   );
 }
