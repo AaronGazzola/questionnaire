@@ -13,8 +13,14 @@ export default function Loading() {
         />
       </div>
       <div className="flex flex-wrap justify-center">
-        <Skeleton.Node style={{ width: 548, height: 726, margin: "1rem" }} />
-        <Skeleton.Node style={{ width: 448, height: 641, margin: "1rem" }} />
+        <Skeleton.Node
+          active
+          style={{ width: 548, height: 726, margin: "1rem" }}
+        />
+        <Skeleton.Node
+          active
+          style={{ width: 448, height: 641, margin: "1rem" }}
+        />
       </div>
     </div>
   );
