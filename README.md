@@ -1,3 +1,17 @@
+## Questionnaire demo
+
+This questionnaire presents rating scale and multiple choice questions. The results are displayed with a spider chart and histogram.
+
+[Visit the app here](https://questionnaire-demo-six.vercel.app/)
+
+### Tech stack:
+
+- Next.js 14
+- Postgres
+- Prisma
+- d3.js
+- Ant design
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
