@@ -19,7 +19,7 @@ const CircleRating = ({
 }) => {
   const circles = [1, 2, 3, 4, 5];
   return (
-    <div className="flex justify-center items-center space-x-10">
+    <div className="flex justify-center items-center space-x-5 sm:space-x-10">
       {circles.map((circleIndex) => (
         <div
           key={circleIndex}
