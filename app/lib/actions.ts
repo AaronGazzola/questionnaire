@@ -5,7 +5,7 @@ import { AnswerData } from "../ui/Questionnaire";
 
 const prisma = new PrismaClient();
 
-export async function fetchQuestions() {
+export async function getQuestions() {
   noStore();
   try {
     const questions = await prisma.question.findMany();
@@ -33,6 +33,23 @@ export async function submitAnswers(name: string, answers: AnswerData[]) {
   } catch (error) {
     console.error("Database Error:", error);
     throw new Error("Failed to submit answers.");
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
+export async function getUsers() {
+  noStore();
+  try {
+    const users = await prisma.user.findMany({
+      include: {
+        answers: true,
+      },
+    });
+    return users;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch users.");
   } finally {
     await prisma.$disconnect();
   }

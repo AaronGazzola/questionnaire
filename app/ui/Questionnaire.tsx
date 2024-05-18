@@ -62,7 +62,7 @@ const CircleRating = ({
 const Questionnaire = ({ questions }: { questions: Question[] }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<AnswerData[]>(
     Array(questions.length).fill({ answer: "", questionId: "" })
   );
@@ -70,25 +70,27 @@ const Questionnaire = ({ questions }: { questions: Question[] }) => {
   const [form] = Form.useForm();
   const router = useRouter();
 
+  const isLastQuestion = currentQuestionIndex === questions.length - 1;
   const handleNext = () => {
-    if (currentQuestion === questions.length - 1) return setModalIsOpen(true);
-    setCurrentQuestion(currentQuestion + 1);
+    if (isLastQuestion) return setModalIsOpen(true);
+    setCurrentQuestionIndex(currentQuestionIndex + 1);
   };
 
   const handlePrevious = () => {
-    if (currentQuestion > 0) {
-      setCurrentQuestion(currentQuestion - 1);
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(currentQuestionIndex - 1);
     }
   };
 
   const handleAnswerChange = (value: number | string) => {
     const newAnswers = [...answers];
-    newAnswers[currentQuestion] = {
+    newAnswers[currentQuestionIndex] = {
       answer: value.toString(),
-      questionId: questions[currentQuestion].id,
+      questionId: questions[currentQuestionIndex].id,
     };
     setAnswers(newAnswers);
-    setTimeout(() => handleNext(), 500);
+    if (isLastQuestion) handleNext();
+    else setTimeout(() => handleNext(), 500);
   };
 
   const handleFormSubmit = async (values: { name: string }) => {
@@ -102,7 +104,7 @@ const Questionnaire = ({ questions }: { questions: Question[] }) => {
     setIsSubmitDisabled(!form.getFieldValue("name"));
   };
 
-  const progressPercent = (currentQuestion / questions.length) * 100;
+  const progressPercent = (currentQuestionIndex / questions.length) * 100;
 
   if (!useIsMounted()) return <Loading />;
   return (
@@ -134,6 +136,7 @@ const Questionnaire = ({ questions }: { questions: Question[] }) => {
               type="primary"
               htmlType="submit"
               disabled={isSubmitDisabled}
+              loading={isSubmitting}
             >
               Submit
             </Button>
@@ -144,28 +147,30 @@ const Questionnaire = ({ questions }: { questions: Question[] }) => {
         <div className="p-5 flex flex-1 justify-center items-center">
           <div className="text-center">
             <h2 className="text-2xl mb-4 p-5">
-              {questions[currentQuestion].text}
+              {questions[currentQuestionIndex].text}
             </h2>
-            {!questions[currentQuestion].options.length ? (
+            {!questions[currentQuestionIndex].options.length ? (
               <CircleRating
-                value={Number(answers[currentQuestion].answer)}
+                value={Number(answers[currentQuestionIndex].answer)}
                 onChange={handleAnswerChange}
               />
             ) : (
               <RadioGroup
                 buttonStyle="solid"
                 onChange={(e) => handleAnswerChange(e.target.value)}
-                value={answers[currentQuestion].answer}
+                value={answers[currentQuestionIndex].answer}
               >
-                {questions[currentQuestion].options.map((option, index) => (
-                  <RadioButton
-                    key={index}
-                    value={option}
-                    className="p-2 text-lg"
-                  >
-                    {option}
-                  </RadioButton>
-                ))}
+                {questions[currentQuestionIndex].options.map(
+                  (option, index) => (
+                    <RadioButton
+                      key={index}
+                      value={option}
+                      className="p-2 text-lg"
+                    >
+                      {option}
+                    </RadioButton>
+                  )
+                )}
               </RadioGroup>
             )}
           </div>
@@ -178,15 +183,15 @@ const Questionnaire = ({ questions }: { questions: Question[] }) => {
           <div className="flex justify-between mt-2">
             <Button
               onClick={handlePrevious}
-              disabled={currentQuestion === 0}
+              disabled={currentQuestionIndex === 0}
             >
               Previous
             </Button>
             <Button
               onClick={handleNext}
-              disabled={!answers[currentQuestion]}
+              disabled={!answers[currentQuestionIndex]}
             >
-              {currentQuestion === questions.length - 1 ? "Finish" : "Next"}
+              {isLastQuestion ? "Finish" : "Next"}
             </Button>
           </div>
         </div>
