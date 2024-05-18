@@ -1,11 +1,11 @@
 import { fetchQuestions } from "./lib/data";
-import Questions from "./ui/Questions";
+import Questionnaire from "./ui/Questionnaire";
 
 export default async function Home() {
   const questions = await fetchQuestions();
   return (
     <main className="">
-      <Questions questions={questions} />
+      <Questionnaire questions={questions} />
     </main>
   );
 }
