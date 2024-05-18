@@ -96,7 +96,6 @@ const Questionnaire = ({ questions }: { questions: Question[] }) => {
   const handleFormSubmit = async (values: { name: string }) => {
     setIsSubmitting(true);
     const user = await submitAnswers(values.name, answers);
-    setModalIsOpen(false);
     router.push(`/results/${user.id}`);
   };
 
