@@ -1,3 +1,4 @@
+import { Card, Typography } from "antd";
 import * as d3 from "d3";
 import { useEffect, useRef } from "react";
 
@@ -32,8 +33,8 @@ const SpiderChart = ({
 
   useEffect(() => {
     const width = 500;
-    const height = 400;
-    const margin = 30;
+    const height = 500;
+    const margin = 60;
     const max = 5;
     const labelDistance = 1.2;
     const lineWidth = 2;
@@ -51,7 +52,7 @@ const SpiderChart = ({
       )
     ).reverse();
 
-    const radius = (height - margin * 2) / 2;
+    const radius = Math.min(width, height) / 2 - margin;
     const maxValue = d3.max(skillsData.flat().map((d) => d.value)) || max;
 
     const angleSlice = (Math.PI * 2) / skillsData[0].length;
@@ -62,18 +63,13 @@ const SpiderChart = ({
       .select(chartRef.current)
       .append("svg")
       .attr("width", width)
-      .attr("height", height + margin * 2);
+      .attr("height", height);
 
-    const containerWidth = width - margin * 2;
-    const containerHeight = height - margin * 2;
     const container = svg
       .append("g")
-      .attr("width", containerWidth)
-      .attr("height", containerHeight)
-      .attr(
-        "transform",
-        `translate(${width / 2 + margin}, ${height / 2 + margin})`
-      );
+      .attr("width", width)
+      .attr("height", height)
+      .attr("transform", `translate(${width / 2}, ${height / 2 + margin / 2})`);
 
     const axisGrid = container.append("g").attr("class", "axisWrapper");
 
@@ -175,7 +171,28 @@ const SpiderChart = ({
       .style("fill-opacity", 1);
   }, [averageUserAnswers, currentUserData]);
 
-  return <div ref={chartRef}></div>;
+  return (
+    <Card
+      className="max-w-min"
+      style={{ margin: "1rem" }}
+    >
+      <Typography.Title level={3}>Development priorities</Typography.Title>
+      <Typography.Paragraph>
+        This chart displays your rating responses compared to the average
+        responses of all other users.
+      </Typography.Paragraph>
+      <div ref={chartRef}></div>
+      <Typography.Title level={5}>Key:</Typography.Title>
+      <div className="flex items-center">
+        <div className="rounded-full w-4 h-4 bg-blue-600 mr-2"></div>
+        <Typography.Text>Your responses</Typography.Text>
+      </div>
+      <div className="flex items-center">
+        <div className="rounded-full w-4 h-4 bg-gray-500 mr-2"></div>
+        <Typography.Text>Average user responses</Typography.Text>
+      </div>
+    </Card>
+  );
 };
 
 export default SpiderChart;

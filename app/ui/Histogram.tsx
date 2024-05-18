@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Pagination } from "antd";
+import { Card, Pagination, Typography } from "antd";
 import * as d3 from "d3";
 import { Question, Answer } from "@prisma/client";
 import { UserWithAnswers } from "../lib/types";
@@ -87,16 +87,37 @@ const Histogram = ({
   }, [currentPage, multipleChoiceQuestions, users, user, currentQuestion]);
 
   return (
-    <div>
-      <h1>{currentQuestion.text}</h1>
+    <Card
+      className="max-w-min"
+      style={{ margin: "1rem" }}
+    >
+      <Typography.Title level={3}>Development preferences</Typography.Title>
+      <Typography.Paragraph>
+        This chart displays your multiple choice responses compared to the
+        responses of all other users.
+        <br />
+        Each page displays the responses for each question.
+      </Typography.Paragraph>
+      <Typography.Title level={5}>{currentQuestion.text}</Typography.Title>
       <svg ref={svgRef}></svg>
-      <Pagination
-        current={currentPage}
-        total={multipleChoiceQuestions.length}
-        pageSize={1}
-        onChange={(page) => setCurrentPage(page)}
-      />
-    </div>
+      <div className="flex items-center justify-center">
+        <Pagination
+          current={currentPage}
+          total={multipleChoiceQuestions.length}
+          pageSize={1}
+          onChange={(page) => setCurrentPage(page)}
+        />
+      </div>
+      <Typography.Title level={5}>Key:</Typography.Title>
+      <div className="flex items-center">
+        <div className="rounded-full w-4 h-4 bg-blue-600 mr-2"></div>
+        <Typography.Text>Your response</Typography.Text>
+      </div>
+      <div className="flex items-center">
+        <div className="rounded-full w-4 h-4 bg-gray-500 mr-2"></div>
+        <Typography.Text>User responses</Typography.Text>
+      </div>
+    </Card>
   );
 };
 
