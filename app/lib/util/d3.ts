@@ -23,7 +23,7 @@ export const prepareDataForSpiderChart = (
 ) => {
   const scaleQuestions = questions.filter((q) => q.type === "scale");
 
-  const averageUserAnswers = scaleQuestions.map((question) => {
+  const averageUserScaleAnswers = scaleQuestions.map((question) => {
     const answers = users.map((user) => {
       const answer = user.answers.find((ans) => ans.questionId === question.id);
       return answer ? parseFloat(answer.answer) : NaN;
@@ -36,15 +36,13 @@ export const prepareDataForSpiderChart = (
         ? validAnswers.reduce((sum, val) => sum + val, 0) / validAnswers.length
         : 0;
 
-    console.log(question.text, validAnswers, average); // Debugging output
-
     return {
       axis: questionLabels[question.text] || question.text,
       value: average,
     };
   });
 
-  const currentUserAnswers = scaleQuestions.map((question) => {
+  const currentUserScaleAnswers = scaleQuestions.map((question) => {
     const user = users.find((user) => user.id === userId);
     const answer = user?.answers.find((ans) => ans.questionId === question.id);
     return {
@@ -53,5 +51,5 @@ export const prepareDataForSpiderChart = (
     };
   });
 
-  return { averageUserAnswers, currentUserAnswers };
+  return { averageUserScaleAnswers, currentUserScaleAnswers };
 };
