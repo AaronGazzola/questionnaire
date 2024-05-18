@@ -9,6 +9,14 @@ import { Question } from "@prisma/client";
 import Loading from "../loading";
 import useIsMounted from "../lib/hooks/useIsMounted";
 import cx from "classnames";
+import { Modal, Form, Input } from "antd";
+import { submitAnswers } from "../lib/actions";
+import { useRouter } from "next/navigation";
+
+export interface AnswerData {
+  answer: string;
+  questionId: string;
+}
 
 const CircleRating = ({
   value,
@@ -52,15 +60,19 @@ const CircleRating = ({
 };
 
 const Questionnaire = ({ questions }: { questions: Question[] }) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [answers, setAnswers] = useState<string[]>(
-    Array(questions.length).fill("")
+  const [answers, setAnswers] = useState<AnswerData[]>(
+    Array(questions.length).fill({ answer: "", questionId: "" })
   );
+  const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
+  const [form] = Form.useForm();
+  const router = useRouter();
 
   const handleNext = () => {
-    if (currentQuestion < questions.length - 1) {
-      setCurrentQuestion(currentQuestion + 1);
-    }
+    if (currentQuestion === questions.length - 1) return setModalIsOpen(true);
+    setCurrentQuestion(currentQuestion + 1);
   };
 
   const handlePrevious = () => {
@@ -71,66 +83,115 @@ const Questionnaire = ({ questions }: { questions: Question[] }) => {
 
   const handleAnswerChange = (value: number | string) => {
     const newAnswers = [...answers];
-    newAnswers[currentQuestion] = value.toString();
+    newAnswers[currentQuestion] = {
+      answer: value.toString(),
+      questionId: questions[currentQuestion].id,
+    };
     setAnswers(newAnswers);
     setTimeout(() => handleNext(), 500);
+  };
+
+  const handleFormSubmit = async (values: { name: string }) => {
+    setIsSubmitting(true);
+    const user = await submitAnswers(values.name, answers);
+    setModalIsOpen(false);
+    router.push(`/results/${user.id}`);
+  };
+
+  const handleValuesChange = (changedValues: any) => {
+    setIsSubmitDisabled(!form.getFieldValue("name"));
   };
 
   const progressPercent = (currentQuestion / questions.length) * 100;
 
   if (!useIsMounted()) return <Loading />;
   return (
-    <div className="h-screen flex flex-col justify-between">
-      <div className="p-5 flex flex-1 justify-center items-center">
-        <div className="text-center">
-          <h2 className="text-2xl mb-4 p-5">
-            {questions[currentQuestion].text}
-          </h2>
-          {!questions[currentQuestion].options.length ? (
-            <CircleRating
-              value={Number(answers[currentQuestion])}
-              onChange={handleAnswerChange}
-            />
-          ) : (
-            <RadioGroup
-              buttonStyle="solid"
-              onChange={(e) => handleAnswerChange(e.target.value)}
-              value={answers[currentQuestion]}
+    <>
+      <Modal
+        open={modalIsOpen}
+        title="Save and submit"
+        onCancel={() => setModalIsOpen(false)}
+        footer={null}
+      >
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleFormSubmit}
+          onValuesChange={handleValuesChange}
+        >
+          <Form.Item
+            name="name"
+            label="Name"
+            rules={[{ required: true, message: "Please enter your name" }]}
+          >
+            <Input placeholder="Enter your name" />
+          </Form.Item>
+          <Form.Item
+            className="flex justify-end"
+            style={{ margin: 0 }}
+          >
+            <Button
+              type="primary"
+              htmlType="submit"
+              disabled={isSubmitDisabled}
             >
-              {questions[currentQuestion].options.map((option, index) => (
-                <RadioButton
-                  key={index}
-                  value={option}
-                  className="p-2 text-lg"
-                >
-                  {option}
-                </RadioButton>
-              ))}
-            </RadioGroup>
-          )}
+              Submit
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
+      <div className="h-screen flex flex-col justify-between">
+        <div className="p-5 flex flex-1 justify-center items-center">
+          <div className="text-center">
+            <h2 className="text-2xl mb-4 p-5">
+              {questions[currentQuestion].text}
+            </h2>
+            {!questions[currentQuestion].options.length ? (
+              <CircleRating
+                value={Number(answers[currentQuestion].answer)}
+                onChange={handleAnswerChange}
+              />
+            ) : (
+              <RadioGroup
+                buttonStyle="solid"
+                onChange={(e) => handleAnswerChange(e.target.value)}
+                value={answers[currentQuestion].answer}
+              >
+                {questions[currentQuestion].options.map((option, index) => (
+                  <RadioButton
+                    key={index}
+                    value={option}
+                    className="p-2 text-lg"
+                  >
+                    {option}
+                  </RadioButton>
+                ))}
+              </RadioGroup>
+            )}
+          </div>
+        </div>
+        <div className="p-5">
+          <Progress
+            percent={progressPercent}
+            showInfo={false}
+          />
+          <div className="flex justify-between mt-2">
+            <Button
+              onClick={handlePrevious}
+              disabled={currentQuestion === 0}
+            >
+              Previous
+            </Button>
+            <Button
+              onClick={handleNext}
+              disabled={!answers[currentQuestion]}
+            >
+              {currentQuestion === questions.length - 1 ? "Finish" : "Next"}
+            </Button>
+          </div>
         </div>
       </div>
-      <div className="p-5">
-        <Progress
-          percent={progressPercent}
-          showInfo={false}
-        />
-        <div className="flex justify-between mt-2">
-          <Button
-            onClick={handlePrevious}
-            disabled={currentQuestion === 0}
-          >
-            Previous
-          </Button>
-          <Button
-            onClick={handleNext}
-            disabled={currentQuestion === questions.length - 1}
-          >
-            Next
-          </Button>
-        </div>
-      </div>
-    </div>
+    </>
   );
 };
 

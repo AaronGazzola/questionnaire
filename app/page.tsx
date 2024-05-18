@@ -1,4 +1,4 @@
-import { fetchQuestions } from "./lib/data";
+import { fetchQuestions } from "./lib/actions";
 import Questionnaire from "./ui/Questionnaire";
 
 export default async function Home() {

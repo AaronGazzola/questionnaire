@@ -1,5 +1,5 @@
 const { db } = require("@vercel/postgres");
-const { questions, answers, users } = require("../app/lib/seed-data.js");
+const { questions, users } = require("../app/lib/seed-data.js");
 
 async function seedQuestions(client) {
   try {
@@ -56,34 +56,6 @@ async function seedUsers(client) {
   }
 }
 
-async function seedAnswers(client) {
-  try {
-    await client.sql`DROP TABLE IF EXISTS "Answer" CASCADE`;
-
-    await client.sql`
-      CREATE TABLE "Answer" (
-        id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-        question_id UUID NOT NULL REFERENCES "Question"(id),
-        user_id UUID NOT NULL REFERENCES "User"(id),
-        answer TEXT NOT NULL
-      );
-    `;
-
-    await Promise.all(
-      answers.map(
-        (answer) =>
-          client.sql`
-          INSERT INTO "Answer" (id, question_id, user_id, answer)
-          VALUES (uuid_generate_v4(), ${answer.question_id}, ${answer.user_id}, ${answer.answer})
-        `
-      )
-    );
-  } catch (error) {
-    console.error("Error seeding answers:", error);
-    throw error;
-  }
-}
-
 async function main() {
   const client = await db.connect();
 
@@ -91,7 +63,6 @@ async function main() {
     await client.sql`BEGIN`;
     await seedQuestions(client);
     await seedUsers(client);
-    await seedAnswers(client);
     await client.sql`COMMIT`;
   } catch (err) {
     console.error(
