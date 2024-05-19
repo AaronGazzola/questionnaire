@@ -3,6 +3,7 @@ import { Card, Pagination, Typography } from "antd";
 import * as d3 from "d3";
 import { Question, Answer } from "@prisma/client";
 import { UserWithAnswers } from "../lib/types";
+import useScreenWidth from "../lib/hooks/useScreenWidth";
 
 const Histogram = ({
   questions,
@@ -13,6 +14,7 @@ const Histogram = ({
   users: UserWithAnswers[];
   user_id: string;
 }) => {
+  const { isSm } = useScreenWidth();
   const [currentPage, setCurrentPage] = useState(1);
   const svgRef = useRef<SVGSVGElement>(null);
   const user = users.find((user) => user.id === user_id);
@@ -39,8 +41,8 @@ const Histogram = ({
     )?.answer;
 
     const margin = { top: 20, right: 30, bottom: 40, left: 40 };
-    const width = 400 - margin.left - margin.right;
-    const height = 300 - margin.top - margin.bottom;
+    const width = (isSm ? 400 : 300) - margin.left - margin.right;
+    const height = (isSm ? 300 : 200) - margin.top - margin.bottom;
 
     const svg = d3
       .select(svgRef.current)
@@ -84,7 +86,14 @@ const Histogram = ({
     return () => {
       d3.select(svgRef.current).selectAll("*").remove();
     };
-  }, [currentPage, multipleChoiceQuestions, users, user, currentQuestion]);
+  }, [
+    currentPage,
+    multipleChoiceQuestions,
+    users,
+    user,
+    currentQuestion,
+    isSm,
+  ]);
 
   return (
     <Card

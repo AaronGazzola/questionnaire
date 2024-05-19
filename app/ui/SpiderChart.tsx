@@ -1,6 +1,7 @@
 import { Card, Typography } from "antd";
 import * as d3 from "d3";
 import { useEffect, useRef } from "react";
+import useScreenWidth from "../lib/hooks/useScreenWidth";
 
 type SkillData = {
   axis: string;
@@ -29,12 +30,13 @@ const SpiderChart = ({
   averageUserAnswers: SkillData[];
   currentUserData: SkillData[];
 }) => {
+  const { isSm } = useScreenWidth();
   const chartRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const width = 500;
-    const height = 500;
-    const margin = 60;
+    const width = isSm ? 500 : 300;
+    const height = isSm ? 500 : 300;
+    const margin = isSm ? 60 : 45;
     const max = 5;
     const labelDistance = 1.2;
     const lineWidth = 2;
@@ -169,7 +171,7 @@ const SpiderChart = ({
         (d, i) => rScale(d.value) * Math.sin(angleSlice * i - Math.PI / 2)
       )
       .style("fill-opacity", 1);
-  }, [averageUserAnswers, currentUserData]);
+  }, [averageUserAnswers, currentUserData, isSm]);
 
   return (
     <Card
