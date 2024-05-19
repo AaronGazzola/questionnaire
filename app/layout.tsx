@@ -12,13 +12,14 @@ export const metadata: Metadata = {
   title: "Questionnaire demo",
   description:
     "A questionnaire built with Next.js, Ant design, Postgress, Prisma and d3.js",
+  metadataBase: new URL("https://questionnaire-demo-six.vercel.app"),
   openGraph: {
     title: "Questionnaire demo",
     description:
       "A questionnaire built with Next.js, Ant design, Postgress, Prisma and d3.js",
     images: [
       {
-        url: "https://questionnaire-demo-six.vercel.app/questionnaire-screenshot.png",
+        url: "/questionnaire-screenshot.png",
         width: 1094,
         height: 931,
         alt: "A screenshot of the results page",
