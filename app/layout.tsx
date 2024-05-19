@@ -12,6 +12,19 @@ export const metadata: Metadata = {
   title: "Questionnaire demo",
   description:
     "A questionnaire built with Next.js, Ant design, Postgress, Prisma and d3.js",
+  openGraph: {
+    title: "Questionnaire demo",
+    description:
+      "A questionnaire built with Next.js, Ant design, Postgress, Prisma and d3.js",
+    images: [
+      {
+        url: "/questionnaire-screenshot.png",
+        width: 1094,
+        height: 931,
+        alt: "A screenshot of the results page",
+      },
+    ],
+  },
 };
 
 export default function RootLayout({
