@@ -188,7 +188,7 @@ const Questionnaire = ({ questions }: { questions: Question[] }) => {
             </Button>
             <Button
               onClick={handleNext}
-              disabled={!answers[currentQuestionIndex]}
+              disabled={!answers[currentQuestionIndex].answer}
             >
               {isLastQuestion ? "Finish" : "Next"}
             </Button>
